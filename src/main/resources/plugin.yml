@@ -1,0 +1,28 @@
+name: MiraFly
+version: 0.1.0
+main: com.mira.fly.MiraFlyPlugin
+api-version: '1.21'
+authors: [FiveS]
+description: Timed and permanent flight access for the Mira plugin ecosystem.
+
+commands:
+  fly:
+    description: Toggle flight when you have MiraFly time or permanent flight permission.
+    usage: /fly
+  flytime:
+    description: Show your remaining MiraFly time.
+    usage: /flytime
+  flyvoucher:
+    description: MiraFly voucher administration.
+    usage: /flyvoucher give <player> [amount]
+
+permissions:
+  mirafly.use:
+    description: Allows use of timed MiraFly flight when time is available.
+    default: true
+  mirafly.permanent:
+    description: Grants permanent MiraFly access without consuming time.
+    default: op
+  mirafly.admin:
+    description: Allows giving MiraFly vouchers.
+    default: op
