@@ -1,0 +1,28 @@
+voucher:
+  seconds: 300
+  material: FEATHER
+  name: "&b&l5 Minute Fly Voucher"
+  lore:
+    - "&7Right-click to redeem."
+    - "&7Adds &b5 minutes &7to your fly time."
+    - ""
+    - "&cThis item cannot be modified."
+
+security:
+  signing-secret: ""
+
+messages:
+  no-access: "&cYou need fly time to use /fly."
+  no-permission: "&cYou do not have permission to use MiraFly."
+  enabled: "&aFlight enabled. &7Remaining: &f%time%"
+  disabled: "&eFlight disabled. &7Remaining: &f%time%"
+  permanent-enabled: "&aFlight enabled. &7You have permanent flight access."
+  permanent-disabled: "&eFlight disabled. &7You have permanent flight access."
+  time: "&bFly time: &f%time%"
+  permanent-time: "&bFly time: &fPermanent"
+  redeemed: "&aFly voucher redeemed! &7Added &f5 minutes&7. Total fly time: &f%time%"
+  invalid-voucher: "&cThat fly voucher is invalid or has been modified."
+  expired: "&cYour fly time has expired. Flight has been disabled."
+  warning-60: "&eYou have 1 minute of fly time remaining."
+  warning-30: "&eYou have 30 seconds of fly time remaining."
+  warning-10: "&cYou have 10 seconds of fly time remaining."
