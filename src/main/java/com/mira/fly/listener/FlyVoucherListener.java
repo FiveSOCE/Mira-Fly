@@ -46,7 +46,7 @@ public final class FlyVoucherListener implements Listener {
             long updated = time.add(uuid, vouchers.secondsPerVoucher());
             String message = plugin.getConfig().getString("messages.redeemed", "&aFly voucher redeemed. Total: &f%time%")
                     .replace("%time%", FlyTimeService.format(updated));
-            event.getPlayer().sendMessage(FlyVoucherService.component(message));
+            event.getPlayer().sendMessage(FlyVoucherService.chat(message));
             consumeOne(event.getPlayer(), event.getHand());
         } finally {
             plugin.getServer().getScheduler().runTask(plugin, () -> redeeming.remove(uuid));
@@ -64,6 +64,6 @@ public final class FlyVoucherListener implements Listener {
 
     private void send(org.bukkit.entity.Player player, String key) {
         String message = plugin.getConfig().getString("messages." + key, "");
-        if (!message.isBlank()) player.sendMessage(FlyVoucherService.component(message));
+        if (!message.isBlank()) player.sendMessage(FlyVoucherService.chat(message));
     }
 }
