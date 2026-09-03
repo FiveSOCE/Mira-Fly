@@ -195,6 +195,6 @@ public final class FlyManager {
     private void send(Player player, String key) {
         String message = plugin.getConfig().getString("messages." + key, "")
                 .replace("%time%", FlyTimeService.format(time.get(player.getUniqueId())));
-        if (!message.isBlank()) player.sendMessage(FlyVoucherService.component(message));
+        if (!message.isBlank()) player.sendMessage(FlyVoucherService.chat(message));
     }
 }
