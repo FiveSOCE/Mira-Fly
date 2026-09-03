@@ -40,7 +40,7 @@ public final class FlyCommand implements TabExecutor {
 
     private void handleFly(CommandSender sender) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("This command must be used by a player.");
+            sender.sendMessage(FlyVoucherService.chat("&cThis command must be used by a player."));
             return;
         }
         manager.toggle(player);
@@ -48,28 +48,28 @@ public final class FlyCommand implements TabExecutor {
 
     private void handleFlyTime(CommandSender sender) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("This command must be used by a player.");
+            sender.sendMessage(FlyVoucherService.chat("&cThis command must be used by a player."));
             return;
         }
         String path = player.hasPermission("mirafly.permanent") ? "messages.permanent-time" : "messages.time";
         String message = plugin.getConfig().getString(path, "&bFly time: &f%time%")
                 .replace("%time%", FlyTimeService.format(time.get(player.getUniqueId())));
-        player.sendMessage(FlyVoucherService.component(message));
+        player.sendMessage(FlyVoucherService.chat(message));
     }
 
     private void handleFlyVoucher(CommandSender sender, String[] args) {
         if (!sender.hasPermission("mirafly.admin")) {
-            sender.sendMessage(FlyVoucherService.component("&cYou do not have permission to administer MiraFly."));
+            sender.sendMessage(FlyVoucherService.chat("&cYou do not have permission to administer MiraFly."));
             return;
         }
         if (args.length < 2 || !args[0].equalsIgnoreCase("give")) {
-            sender.sendMessage(FlyVoucherService.component("&eUsage: /flyvoucher give <username> <amount>"));
+            sender.sendMessage(FlyVoucherService.chat("&eUsage: /flyvoucher give <username> <amount>"));
             return;
         }
 
         Player target = plugin.getServer().getPlayerExact(args[1]);
         if (target == null) {
-            sender.sendMessage(FlyVoucherService.component("&cThat player is not online."));
+            sender.sendMessage(FlyVoucherService.chat("&cThat player is not online."));
             return;
         }
 
@@ -78,12 +78,12 @@ public final class FlyCommand implements TabExecutor {
             try {
                 amount = Integer.parseInt(args[2]);
             } catch (NumberFormatException ex) {
-                sender.sendMessage(FlyVoucherService.component("&cAmount must be a whole number."));
+                sender.sendMessage(FlyVoucherService.chat("&cAmount must be a whole number."));
                 return;
             }
         }
         if (amount < 1 || amount > 2304) {
-            sender.sendMessage(FlyVoucherService.component("&cAmount must be between 1 and 2304."));
+            sender.sendMessage(FlyVoucherService.chat("&cAmount must be between 1 and 2304."));
             return;
         }
 
@@ -95,7 +95,7 @@ public final class FlyCommand implements TabExecutor {
             overflow.values().forEach(drop -> target.getWorld().dropItemNaturally(target.getLocation(), drop));
             remaining -= stack;
         }
-        sender.sendMessage(FlyVoucherService.component("&aGave &f" + target.getName() + " &a" + amount + " fly voucher(s)."));
+        sender.sendMessage(FlyVoucherService.chat("&aGave &f" + target.getName() + " &a" + amount + " fly voucher(s)."));
     }
 
     @Override
