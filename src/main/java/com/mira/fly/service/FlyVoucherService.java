@@ -20,6 +20,7 @@ import java.util.List;
 
 public final class FlyVoucherService {
     private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+    private static final String CHAT_PREFIX = "&5&lMira &8>> &r";
     private static final String VOUCHER_ID = "fly_5m";
 
     private final MiraFlyPlugin plugin;
@@ -93,5 +94,9 @@ public final class FlyVoucherService {
 
     public static Component component(String legacy) {
         return LEGACY.deserialize(legacy == null ? "" : legacy);
+    }
+
+    public static Component chat(String legacy) {
+        return component(CHAT_PREFIX + (legacy == null ? "" : legacy));
     }
 }
