@@ -11,6 +11,22 @@ voucher:
 security:
   signing-secret: ""
 
+regions:
+  # World names here always disable MiraFly-managed flight.
+  blocked-worlds: []
+  # Applies to /fly timed/permanent access when MiraFactions is installed.
+  personal-allowed-territories:
+    - SAFEZONE
+    - WILDERNESS
+    - OWN
+    - ALLY
+    - TRUCE
+    - NEUTRAL
+  # /f fly is intentionally stricter and only works in own/allied claims by default.
+  faction-allowed-territories:
+    - OWN
+    - ALLY
+
 messages:
   no-access: "&cYou need fly time to use /fly."
   no-permission: "&cYou do not have permission to use MiraFly."
@@ -26,3 +42,5 @@ messages:
   warning-60: "&eYou have 1 minute of fly time remaining."
   warning-30: "&eYou have 30 seconds of fly time remaining."
   warning-10: "&cYou have 10 seconds of fly time remaining."
+  region-blocked: "&cFlight is not allowed in this region."
+  region-restored: "&aFlight access restored in this region."
