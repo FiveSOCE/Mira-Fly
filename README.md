@@ -1,143 +1,42 @@
 # MiraFly
 
-Timed, permanent and faction-aware flight access for the Mira Minecraft plugin ecosystem.
+MiraFly is the timed, permanent and faction-aware flight controller for the Mira Paper server suite. It owns the live Bukkit flight state, tracks stored flight time, supports secure flight vouchers and integrates with MiraFactions territory/upgrade rules.
 
 ## Download
 
-[**Download MiraFly v0.1.1 (.jar)**](https://github.com/FiveSOCE/Mira-Fly/releases/download/v0.1.1/MiraFly-0.1.1.jar)
+[**Download MiraFly v0.1.1**](https://github.com/FiveSOCE/Mira-Fly/releases/download/v0.1.1/MiraFly-0.1.1.jar)
 
-[View all releases](https://github.com/FiveSOCE/Mira-Fly/releases)
-
-Current release: **v0.1.1**
-
-## Flight behaviour
-
-- `/fly` toggles timed or permanent MiraFly flight.
-- A normal player can only enable `/fly` if they have stored MiraFly time and the `mirafly.use` permission.
-- Fly time only counts down while the player is actually flying.
-- Turning `/fly` off, standing on the ground, logging out or entering a blocked region pauses the timer.
-- When timed flight reaches zero, MiraFly immediately disables that flight source.
-- Players with `mirafly.permanent` can use `/fly` without consuming stored time.
-- `/flytime` shows the player's current stored time, or `Permanent` for permanent-flight users.
-- MiraFly is the runtime authority for faction flight when MiraFactions v0.2.7+ is installed.
-
-## MiraFactions flight integration
-
-MiraFactions owns faction entitlement while MiraFly owns the actual Bukkit flight state.
-
-`/f fly` checks that:
-
-1. the player belongs to a faction,
-2. the faction has unlocked the FLIGHT upgrade,
-3. the player's faction rank has FLY permission,
-4. MiraFly allows flight in the current territory.
-
-The default faction-flight territory policy allows:
-
-```text
-OWN
-ALLY
-```
-
-MiraFly re-checks the player's territory continuously. Leaving an allowed faction-flight territory disables faction flight instead of allowing MiraFactions and MiraFly to compete over `allowFlight`.
-
-## Region-aware restrictions
-
-Configure `regions` in `config.yml`.
-
-```yaml
-regions:
-  blocked-worlds: []
-  personal-allowed-territories:
-    - SAFEZONE
-    - WILDERNESS
-    - OWN
-    - ALLY
-    - TRUCE
-    - NEUTRAL
-  faction-allowed-territories:
-    - OWN
-    - ALLY
-```
-
-Available MiraFactions territory values are `SAFEZONE`, `WARZONE`, `WILDERNESS`, `OWN`, `ALLY`, `TRUCE`, `NEUTRAL` and `ENEMY`.
-
-Without MiraFactions installed, ordinary `/fly` still works and only `blocked-worlds` is enforced. Faction flight naturally requires MiraFactions.
-
-## Fly vouchers
-
-Each voucher is a protected **feather** worth **5 minutes / 300 seconds** of stored fly time.
-
-Give vouchers with:
-
-```text
-/flyvoucher give <USERNAME> <Amount>
-```
-
-Right-clicking a valid voucher in the air or on a block validates the protected voucher metadata/signature, adds five minutes to that player's stored balance, reports the updated total and consumes exactly one voucher.
-
-The visible name and lore do not establish authenticity. Forged or modified vouchers are rejected. Anvil, grindstone, smithing, crafting and enchanting modification paths are blocked for tagged MiraFly vouchers.
-
-## Countdown messages
-
-A timed-flight user receives private chat warnings at:
-
-- 1 minute remaining
-- 30 seconds remaining
-- 10 seconds remaining
-
-When the timer reaches zero they are told their flight time expired and timed flight is disabled.
-
-## Commands
-
-```text
-/fly
-/flytime
-/flyvoucher give <USERNAME> <Amount>
-```
-
-Faction flight is toggled through MiraFactions:
-
-```text
-/f fly
-```
-
-## Permissions
-
-| Permission | Default | Purpose |
-| --- | --- | --- |
-| `mirafly.use` | Everyone | Allows use of stored timed fly time |
-| `mirafly.permanent` | OP | Permanent `/fly` without consuming time |
-| `mirafly.admin` | OP | Allows `/flyvoucher give` |
-
-Faction-flight rank permission remains managed by MiraFactions.
-
-## Data
-
-Stored player fly-time balances are kept in:
-
-```text
-plugins/MiraFly/players.yml
-```
-
-Voucher appearance, voucher duration, region policies, messages and the generated signing secret are stored in `config.yml`.
-
-Do not change `security.signing-secret` after vouchers have been issued, otherwise previously issued vouchers will no longer validate.
-
-## Requirements
+## Requirements / Dependencies
 
 - Paper 1.21.11
 - Java 21
-- MiraFactions v0.2.7+ optional, required only for `/f fly` integration
+- MiraFactions v0.2.7+ optional; required only for `/f fly` faction-flight integration
 
-## Building from source
+## How MiraFly Works
 
-```bash
-gradle clean build
-```
+Normal players can toggle `/fly` only when they have stored MiraFly time and `mirafly.use`. Stored time counts down only while the player is actually flying. Turning flight off, standing on the ground, logging out or entering a blocked region pauses the timer. At 1 minute, 30 seconds and 10 seconds remaining the player receives private warnings; at zero, timed flight is disabled immediately.
 
-Output:
+Players with `mirafly.permanent` can use `/fly` without consuming stored time. `/flytime` reports the current balance or `Permanent` for permanent users. Player balances persist in `plugins/MiraFly/players.yml`.
 
-```text
-build/libs/MiraFly-0.1.1.jar
-```
+Flight vouchers are protected feather items, worth 5 minutes/300 seconds by default. Right-clicking a valid voucher verifies its hidden metadata/signature, adds the configured time to the redeemer's balance, reports the new total and consumes one voucher. Forged or modified vouchers are rejected, and common item-modification paths such as anvils, grindstones, smithing, crafting and enchanting are blocked for tagged vouchers. The signing secret in `config.yml` must remain stable after vouchers have been issued.
+
+When MiraFactions is installed, MiraFactions decides whether the faction/rank has entitlement while MiraFly remains the runtime flight authority. `/f fly` requires faction membership, the FLIGHT upgrade, faction FLY rank permission and an allowed current territory. MiraFly continuously re-checks territory and disables faction flight when the player leaves an allowed area. Region configuration can separately control blocked worlds and allowed personal/faction territory types.
+
+## Commands
+
+| Command | Permission | What it does |
+| --- | --- | --- |
+| `/fly` | `mirafly.use` or `mirafly.permanent` | Toggles personal MiraFly flight. Timed users require stored time; permanent users do not consume time. |
+| `/flytime` | None beyond normal access | Shows remaining stored flight time or `Permanent`. |
+| `/flyvoucher give <player> [amount]` | `mirafly.admin` | Gives one or more secure MiraFly vouchers to a player. |
+| `/f fly` | MiraFactions-managed | Toggles faction flight through MiraFactions when the faction upgrade/rank/territory requirements are met. |
+
+## Permissions
+
+| Permission | Default | What it does |
+| --- | --- | --- |
+| `mirafly.use` | Everyone | Allows use of timed flight when stored time is available. |
+| `mirafly.permanent` | OP | Grants permanent `/fly` without consuming stored time. |
+| `mirafly.admin` | OP | Allows administrative voucher giving. |
+
+Faction-flight rank permissions are owned by MiraFactions rather than MiraFly.
