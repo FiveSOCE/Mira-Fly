@@ -11,10 +11,11 @@ voucher:
 security:
   signing-secret: ""
 
+cosmetics:
+  flight-effect-interval-ticks: 5
+
 regions:
-  # World names here always disable MiraFly-managed flight.
   blocked-worlds: []
-  # Applies to /fly timed/permanent access when MiraFactions is installed.
   personal-allowed-territories:
     - SAFEZONE
     - WILDERNESS
@@ -22,7 +23,6 @@ regions:
     - ALLY
     - TRUCE
     - NEUTRAL
-  # /f fly is intentionally stricter and only works in own/allied claims by default.
   faction-allowed-territories:
     - OWN
     - ALLY
