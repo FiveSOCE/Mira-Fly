@@ -40,8 +40,15 @@ public final class FlyTimeService {
     }
 
     public long add(UUID uuid, long amount) {
-        long updated = Math.max(0L, get(uuid) + Math.max(0L, amount));
-        if (updated == 0L) seconds.remove(uuid); else seconds.put(uuid, updated);
+        if (amount <= 0L) return get(uuid);
+        long current = get(uuid);
+        long updated;
+        try {
+            updated = Math.addExact(current, amount);
+        } catch (ArithmeticException exception) {
+            updated = Long.MAX_VALUE;
+        }
+        seconds.put(uuid, updated);
         save();
         return updated;
     }
@@ -50,7 +57,8 @@ public final class FlyTimeService {
         long current = get(uuid);
         if (current <= 0L) return 0L;
         long updated = current - 1L;
-        if (updated <= 0L) seconds.remove(uuid); else seconds.put(uuid, updated);
+        if (updated <= 0L) seconds.remove(uuid);
+        else seconds.put(uuid, updated);
         return updated;
     }
 
@@ -61,16 +69,16 @@ public final class FlyTimeService {
         }
         try {
             yaml.save(file);
-        } catch (IOException ex) {
-            throw new IllegalStateException("Could not save MiraFly players.yml", ex);
+        } catch (IOException exception) {
+            throw new IllegalStateException("Could not save MiraFly players.yml", exception);
         }
     }
 
     public static String format(long totalSeconds) {
-        long seconds = Math.max(0L, totalSeconds);
-        long hours = seconds / 3600L;
-        long minutes = (seconds % 3600L) / 60L;
-        long remaining = seconds % 60L;
+        long safe = Math.max(0L, totalSeconds);
+        long hours = safe / 3600L;
+        long minutes = (safe % 3600L) / 60L;
+        long remaining = safe % 60L;
         if (hours > 0L) return String.format("%dh %02dm %02ds", hours, minutes, remaining);
         return String.format("%dm %02ds", minutes, remaining);
     }
