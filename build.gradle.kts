@@ -1,20 +1,22 @@
 import java.net.URI
 import java.security.MessageDigest
 
-plugins {
-    java
-}
+plugins { java }
 
 group = "com.mira"
-version = "0.1.1"
+version = "0.1.2"
 
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
 }
 
-val miraFactionsVersion = "0.2.7"
-val miraFactionsSha256 = "467ed2ae1826e7629ef74148008b741a9e2671d8822891196b62bcade43dc4f1"
+val miraCoreVersion = "0.2.0"
+val miraCoreSha256 = "66433a266a76088d2a2de90ac1beb1a5a183c26891ee8f394827b47830195b03"
+val miraCoreJar = layout.projectDirectory.file("libs/MiraCore-$miraCoreVersion.jar").asFile
+
+val miraFactionsVersion = "0.2.8"
+val miraFactionsSha256 = "9e3ad2bc26c25c279cb3f457157f5548c6a7292d9dfef7210b104ac85237b9e7"
 val miraFactionsJar = layout.projectDirectory.file("libs/MiraFactions-$miraFactionsVersion.jar").asFile
 
 fun sha256(file: File): String {
@@ -25,12 +27,21 @@ fun sha256(file: File): String {
 fun downloadVerified(url: String, target: File, expectedSha256: String) {
     if (target.exists() && sha256(target) == expectedSha256) return
     target.parentFile.mkdirs()
-    URI(url).toURL().openStream().use { input -> target.outputStream().use { output -> input.copyTo(output) } }
-    check(sha256(target) == expectedSha256) { "Downloaded dependency failed SHA-256 verification: ${target.name}" }
+    URI(url).toURL().openStream().use { input ->
+        target.outputStream().use { output -> input.copyTo(output) }
+    }
+    check(sha256(target) == expectedSha256) {
+        "Downloaded dependency failed SHA-256 verification: ${target.name}"
+    }
 }
 
 val downloadMiraDependencies by tasks.registering {
     doLast {
+        downloadVerified(
+            "https://github.com/FiveSOCE/MIra-core/releases/download/v$miraCoreVersion/MiraCore-$miraCoreVersion.jar",
+            miraCoreJar,
+            miraCoreSha256
+        )
         downloadVerified(
             "https://github.com/FiveSOCE/Mira-Factions/releases/download/v$miraFactionsVersion/MiraFactions-$miraFactionsVersion.jar",
             miraFactionsJar,
@@ -41,12 +52,11 @@ val downloadMiraDependencies by tasks.registering {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly(files(miraCoreJar))
     compileOnly(files(miraFactionsJar))
 }
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
-}
+java { toolchain.languageVersion.set(JavaLanguageVersion.of(21)) }
 
 tasks.withType<JavaCompile>().configureEach {
     dependsOn(downloadMiraDependencies)
@@ -54,6 +64,4 @@ tasks.withType<JavaCompile>().configureEach {
     options.release.set(21)
 }
 
-tasks.jar {
-    archiveFileName.set("MiraFly-${project.version}.jar")
-}
+tasks.jar { archiveFileName.set("MiraFly-${project.version}.jar") }
