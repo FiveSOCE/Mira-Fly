@@ -8,6 +8,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,8 +18,11 @@ public final class FlyManager {
     private final Set<UUID> personalActive = new HashSet<>();
     private final Set<UUID> factionActive = new HashSet<>();
     private final Set<UUID> regionBlocked = new HashSet<>();
+
     private FactionAccess factions;
+    private FlightEffectRenderer effects;
     private BukkitTask task;
+    private BukkitTask effectTask;
     private int saveCounter;
 
     public FlyManager(MiraFlyPlugin plugin, FlyTimeService time) {
@@ -30,15 +34,27 @@ public final class FlyManager {
         this.factions = factions;
     }
 
+    public void setEffectRenderer(FlightEffectRenderer effects) {
+        this.effects = effects;
+    }
+
     public void start() {
         task = plugin.getServer().getScheduler().runTaskTimer(plugin, this::tick, 20L, 20L);
+        long effectTicks = Math.max(1L,
+                plugin.getConfig().getLong("cosmetics.flight-effect-interval-ticks", 5L));
+        effectTask = plugin.getServer().getScheduler()
+                .runTaskTimer(plugin, this::renderFlightEffects, effectTicks, effectTicks);
     }
 
     public boolean toggle(Player player) {
         UUID uuid = player.getUniqueId();
         if (personalActive.remove(uuid)) {
             refresh(player);
-            send(player, player.hasPermission("mirafly.permanent") ? "permanent-disabled" : "disabled");
+            send(player, player.hasPermission("mirafly.permanent")
+                    ? "permanent-disabled" : "disabled");
+            plugin.audit("FLIGHT_TOGGLED", player, uuid.toString(),
+                    "Personal flight disabled",
+                    Map.of("mode", "PERSONAL", "enabled", "false"));
             return false;
         }
 
@@ -60,7 +76,11 @@ public final class FlyManager {
 
         personalActive.add(uuid);
         refresh(player);
-        send(player, player.hasPermission("mirafly.permanent") ? "permanent-enabled" : "enabled");
+        send(player, player.hasPermission("mirafly.permanent")
+                ? "permanent-enabled" : "enabled");
+        plugin.audit("FLIGHT_TOGGLED", player, uuid.toString(),
+                "Personal flight enabled",
+                Map.of("mode", "PERSONAL", "enabled", "true"));
         return true;
     }
 
@@ -68,20 +88,30 @@ public final class FlyManager {
         UUID uuid = player.getUniqueId();
         if (factionActive.remove(uuid)) {
             refresh(player);
+            plugin.audit("FLIGHT_TOGGLED", player, uuid.toString(),
+                    "Faction flight disabled",
+                    Map.of("mode", "FACTION", "enabled", "false"));
             return FactionFlightController.ToggleResult.disabled("Faction flight disabled.");
         }
+
         if (factions == null || !factions.available()) {
-            return FactionFlightController.ToggleResult.failed("Faction flight requires MiraFactions integration.");
+            return FactionFlightController.ToggleResult.failed(
+                    "Faction flight requires MiraFactions integration.");
         }
         if (!factions.entitled(player)) {
-            return FactionFlightController.ToggleResult.failed("Your faction flight entitlement is no longer valid.");
+            return FactionFlightController.ToggleResult.failed(
+                    "Your faction flight entitlement is no longer valid.");
         }
         if (!regionAllowed(player, true)) {
-            return FactionFlightController.ToggleResult.failed("Faction flight is not allowed in this territory.");
+            return FactionFlightController.ToggleResult.failed(
+                    "Faction flight is not allowed in this territory.");
         }
 
         factionActive.add(uuid);
         refresh(player);
+        plugin.audit("FLIGHT_TOGGLED", player, uuid.toString(),
+                "Faction flight enabled",
+                Map.of("mode", "FACTION", "enabled", "true"));
         return FactionFlightController.ToggleResult.enabled("Faction flight enabled.");
     }
 
@@ -103,16 +133,19 @@ public final class FlyManager {
 
     public void refresh(Player player) {
         UUID uuid = player.getUniqueId();
-        if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) return;
+        if (player.getGameMode() == GameMode.CREATIVE
+                || player.getGameMode() == GameMode.SPECTATOR) return;
 
         boolean personalRequested = personalActive.contains(uuid);
         boolean factionRequested = factionActive.contains(uuid);
 
         boolean permanent = player.hasPermission("mirafly.permanent");
-        boolean personalAccess = personalRequested && (permanent || (player.hasPermission("mirafly.use") && time.get(uuid) > 0L));
+        boolean personalAccess = personalRequested
+                && (permanent || (player.hasPermission("mirafly.use") && time.get(uuid) > 0L));
         if (personalRequested && !personalAccess) personalActive.remove(uuid);
 
-        boolean factionEntitled = factionRequested && factions != null && factions.available() && factions.entitled(player);
+        boolean factionEntitled = factionRequested && factions != null
+                && factions.available() && factions.entitled(player);
         if (factionRequested && !factionEntitled) factionActive.remove(uuid);
 
         boolean personalRegion = personalAccess && regionAllowed(player, false);
@@ -133,6 +166,7 @@ public final class FlyManager {
 
     public void shutdown() {
         if (task != null) task.cancel();
+        if (effectTask != null) effectTask.cancel();
         for (Player player : plugin.getServer().getOnlinePlayers()) deactivate(player);
         time.save();
     }
@@ -154,7 +188,8 @@ public final class FlyManager {
 
             if (!personalActive.contains(uuid)) continue;
             if (player.hasPermission("mirafly.permanent")) continue;
-            if (factionActive.contains(uuid) && factions != null && factions.entitled(player) && regionAllowed(player, true)) continue;
+            if (factionActive.contains(uuid) && factions != null
+                    && factions.entitled(player) && regionAllowed(player, true)) continue;
             if (!player.isFlying() || !regionAllowed(player, false)) continue;
 
             long remaining = time.consumeOne(uuid);
@@ -165,6 +200,8 @@ public final class FlyManager {
                 personalActive.remove(uuid);
                 refresh(player);
                 send(player, "expired");
+                plugin.audit("FLIGHT_TIME_EXPIRED", player, uuid.toString(),
+                        "Timed flight balance expired", Map.of("mode", "PERSONAL"));
             }
         }
 
@@ -175,6 +212,31 @@ public final class FlyManager {
         }
     }
 
+    private void renderFlightEffects() {
+        if (effects == null || !effects.available()) return;
+
+        Set<UUID> tracked = new HashSet<>(personalActive);
+        tracked.addAll(factionActive);
+
+        for (UUID uuid : tracked) {
+            Player player = plugin.getServer().getPlayer(uuid);
+            if (player == null || !player.isOnline() || !player.isFlying()) continue;
+            if (player.getGameMode() == GameMode.CREATIVE
+                    || player.getGameMode() == GameMode.SPECTATOR) continue;
+
+            boolean personalValid = personalActive.contains(uuid)
+                    && (player.hasPermission("mirafly.permanent")
+                    || (player.hasPermission("mirafly.use") && time.get(uuid) > 0L))
+                    && regionAllowed(player, false);
+
+            boolean factionValid = factionActive.contains(uuid)
+                    && factions != null && factions.available()
+                    && factions.entitled(player) && regionAllowed(player, true);
+
+            if (personalValid || factionValid) effects.play(player);
+        }
+    }
+
     private boolean regionAllowed(Player player, boolean factionMode) {
         for (String world : plugin.getConfig().getStringList("regions.blocked-worlds")) {
             if (world.equalsIgnoreCase(player.getWorld().getName())) return false;
@@ -182,12 +244,16 @@ public final class FlyManager {
 
         if (factions == null || !factions.available()) return !factionMode;
         String territory = factions.territory(player).toUpperCase(Locale.ROOT);
-        String path = factionMode ? "regions.faction-allowed-territories" : "regions.personal-allowed-territories";
-        return plugin.getConfig().getStringList(path).stream().anyMatch(value -> value.equalsIgnoreCase(territory));
+        String path = factionMode
+                ? "regions.faction-allowed-territories"
+                : "regions.personal-allowed-territories";
+        return plugin.getConfig().getStringList(path).stream()
+                .anyMatch(value -> value.equalsIgnoreCase(territory));
     }
 
     private void disableFlight(Player player) {
-        if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) return;
+        if (player.getGameMode() == GameMode.CREATIVE
+                || player.getGameMode() == GameMode.SPECTATOR) return;
         if (player.isFlying()) player.setFlying(false);
         player.setAllowFlight(false);
     }
