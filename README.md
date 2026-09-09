@@ -1,12 +1,14 @@
 # MiraFly
 
-MiraFly is the timed, permanent and faction-aware flight controller for the Mira Paper server suite. It owns live Bukkit flight state, stored flight time, secure fly vouchers and MiraFactions territory/upgrade policy while delegating flight visuals to MiraCosmetics.
-
 ## Download
 
-[**Download MiraFly v0.1.2**](https://github.com/FiveSOCE/Mira-Fly/releases/download/v0.1.3/MiraFly-0.1.3.jar)
+**Latest compatibility release: v0.1.3**
 
-[View All Releases](https://github.com/FiveSOCE/Mira-Fly/releases)
+[**Download MiraFly-0.1.3.jar**](https://github.com/FiveSOCE/Mira-Fly/releases/download/v0.1.3/MiraFly-0.1.3.jar)
+
+[View all releases](https://github.com/FiveSOCE/Mira-Fly/releases)
+
+MiraFly is the timed, permanent and faction-aware flight controller for the Mira Paper server suite. It owns live Bukkit flight state, stored flight time, secure fly vouchers and MiraFactions territory/upgrade policy while delegating flight visuals to MiraCosmetics.
 
 ## Requirements / Dependencies
 
