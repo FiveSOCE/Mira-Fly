@@ -4,7 +4,7 @@ MiraFly is the timed, permanent and faction-aware flight controller for the Mira
 
 ## Download
 
-[**Download MiraFly v0.1.2**](https://github.com/FiveSOCE/Mira-Fly/releases/download/v0.1.2/MiraFly-0.1.2.jar)
+[**Download MiraFly v0.1.2**](https://github.com/FiveSOCE/Mira-Fly/releases/download/v0.1.3/MiraFly-0.1.3.jar)
 
 [View All Releases](https://github.com/FiveSOCE/Mira-Fly/releases)
 
