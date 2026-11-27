@@ -82,7 +82,7 @@ public final class MiraFlyPlugin extends JavaPlugin implements Listener {
 
         manager.start();
         getServer().getOnlinePlayers().forEach(manager::refresh);
-        getLogger().info("MiraFly v" + getPluginMeta().getVersion() + " enabled.");
+        getLogger().info("MiraFly v" + getDescription().getVersion() + " enabled.");
     }
 
     @Override
