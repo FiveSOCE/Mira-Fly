@@ -53,16 +53,16 @@ jobs:
         run: gradle clean test build -PpaperApiVersion=1.21.11-R0.1-SNAPSHOT -PcompileJavaVersion=21 -PbytecodeJavaVersion=21 --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: MiraFly-0.1.3
-          path: build/libs/MiraFly-0.1.3.jar
+          name: MiraFly_1.21.11-26.2
+          path: build/libs/MiraFly_1.21.11-26.2.jar
           if-no-files-found: error
       - name: Publish release
         if: success() && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.3 >/dev/null 2>&1; then
-            gh release upload v0.1.3 build/libs/MiraFly-0.1.3.jar --clobber
+          if gh release view compat-modern-1.21.11-26.2 >/dev/null 2>&1; then
+            gh release upload compat-modern-1.21.11-26.2 build/libs/MiraFly_1.21.11-26.2.jar --clobber
           else
-            gh release create v0.1.3 build/libs/MiraFly-0.1.3.jar --target "${{ github.sha }}" --title "MiraFly v0.1.3" --notes "Compatibility release: one MiraFly JAR targeting the shared Paper API surface from Minecraft 1.21.11 through 26.2. CI verifies both endpoints; production bytecode remains Java 21 compatible."
+            gh release create compat-modern-1.21.11-26.2 build/libs/MiraFly_1.21.11-26.2.jar --target "${{ github.sha }}" --title "MiraFly compat-modern-1.21.11-26.2" --notes "Compatibility release: one MiraFly JAR targeting the shared Paper API surface from Minecraft 1.21.11 through 26.2. CI verifies both endpoints; production bytecode remains Java 21 compatible."
           fi
