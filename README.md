@@ -1,22 +1,39 @@
 # MiraFly
 
-## Download
+## Downloads by server version
 
-**Latest compatibility release: v0.1.3**
+| Paper server | Java | JAR filename | Download |
+| --- | --- | --- | --- |
+| **1.18.2** | 17 | `MiraFly_1.18.2.jar` | [Legacy release](https://github.com/FiveSOCE/Mira-Fly/releases/tag/dev-1.18.2) |
+| **1.21.11–26.2** | Java 21 baseline, 26.2 may require Java 25 | `MiraFly_1.21.11-26.2.jar` | [Modern release](https://github.com/FiveSOCE/Mira-Fly/releases/tag/compat-modern-1.21.11-26.2) |
 
-[**Download MiraFly-0.1.3.jar**](https://github.com/FiveSOCE/Mira-Fly/releases/download/v0.1.3/MiraFly-0.1.3.jar)
+The links become usable when GitHub Actions builds and publishes each named JAR. Compilation checks do not replace live testing, and **1.19–1.21.10 are not certified**. Install only the JAR matching your server.
 
-[View all releases](https://github.com/FiveSOCE/Mira-Fly/releases)
+[Legacy source](https://github.com/FiveSOCE/Mira-Fly/tree/compat/1.18.2) · [Modern source](https://github.com/FiveSOCE/Mira-Fly/tree/main) · [All releases](https://github.com/FiveSOCE/Mira-Fly/releases)
 
-MiraFly is the timed, permanent and faction-aware flight controller for the Mira Paper server suite. It owns live Bukkit flight state, stored flight time, secure fly vouchers and MiraFactions territory/upgrade policy while delegating flight visuals to MiraCosmetics.
+MiraFly is the timed, permanent and faction-aware flight controller. It manages flight permission, countdowns, protected fly vouchers, persisted fly balance and faction entitlement, while delegating visual flight cosmetics where available.
 
-## Requirements / Dependencies
+## Dependencies and integration
 
-- Paper 1.21.11
-- Java 21
-- MiraCore 0.2.0 or newer
-- MiraFactions 0.2.8+ optional; required only for faction flight
-- MiraCosmetics 0.1.1+ optional/recommended for flight effects
+- **Required:** Matching Paper and Java runtime and a matching **MiraCore** build.
+- **Optional:** Matching MiraFactions for faction/territory flight (`/f fly`); matching MiraCosmetics for flight visual effects.
+- **Economy / Vault:** Not required.
+- Before switching builds, back up `plugins/MiraFly/` and remove earlier MiraFly JARs.
+
+## Commands and permissions
+
+| Command | Permission | Function |
+| --- | --- | --- |
+| `/fly` | `mirafly.use` or `mirafly.permanent` | Toggle personal flight when eligible |
+| `/flytime` | Default access | Show remaining time or permanent status |
+| `/flyvoucher give <player> [amount]` | `mirafly.admin` | Give signed flight vouchers |
+| `/f fly` | MiraFactions policy | Toggle faction flight when MiraFactions is installed |
+
+| Permission | Default | Purpose |
+| --- | --- | --- |
+| `mirafly.use` | Everyone | Spend stored flight time |
+| `mirafly.permanent` | OP | Fly without consuming time |
+| `mirafly.admin` | OP | Issue vouchers |
 
 ## Flight Ownership
 
