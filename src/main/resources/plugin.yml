@@ -1,7 +1,7 @@
 name: MiraFly
-version: 0.1.3
+version: 0.1.3-1.18.2
 main: com.mira.fly.MiraFlyPlugin
-api-version: '1.21'
+api-version: '1.18'
 authors: [FiveS]
 description: Timed, permanent and faction-aware flight access for the Mira plugin ecosystem.
 depend: [MiraCore]
