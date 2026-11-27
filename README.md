@@ -4,10 +4,10 @@
 
 | Paper server | Java | JAR filename | Download |
 | --- | --- | --- | --- |
-| **1.18.2** | 17 | `MiraFly_1.18.2.jar` | [Legacy release](https://github.com/FiveSOCE/Mira-Fly/releases/tag/dev-1.18.2) |
-| **1.21.11–26.2** | Java 21 baseline, 26.2 may require Java 25 | `MiraFly_1.21.11-26.2.jar` | [Modern release](https://github.com/FiveSOCE/Mira-Fly/releases/tag/compat-modern-1.21.11-26.2) |
+| **1.18.2** | 17 | `MiraFly_1.18.2.jar` | [Download 1.18.2 JAR](https://github.com/FiveSOCE/Mira-Fly/releases/download/dev-1.18.2/MiraFly_1.18.2.jar) |
+| **1.21.11–26.2** | Java 21 baseline, 26.2 may require Java 25 | `MiraFly_1.21.11-26.2.jar` | [Download modern JAR](https://github.com/FiveSOCE/Mira-Fly/releases/download/compat-modern-1.21.11-26.2/MiraFly_1.21.11-26.2.jar) |
 
-The links become usable when GitHub Actions builds and publishes each named JAR. Compilation checks do not replace live testing, and **1.19–1.21.10 are not certified**. Install only the JAR matching your server.
+Both named JARs have been published following successful GitHub Actions builds. Compilation checks do not replace live testing, and **1.19–1.21.10 are not certified**. Install only the JAR matching your server.
 
 [Legacy source](https://github.com/FiveSOCE/Mira-Fly/tree/compat/1.18.2) · [Modern source](https://github.com/FiveSOCE/Mira-Fly/tree/main) · [All releases](https://github.com/FiveSOCE/Mira-Fly/releases)
 
